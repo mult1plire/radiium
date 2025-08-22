@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Proxy Browser</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="browser-window">
+    <div class="tab-bar">
+      <div id="tabs" class="tabs"></div>
+      <button id="add-tab" title="New Tab">+</button>
+      <button id="theme-toggle" title="Toggle Light/Dark">🌓</button>
+    </div>
+
+    <div class="toolbar">
+      <button id="back" disabled>&larr;</button>
+      <button id="forward" disabled>&rarr;</button>
+      <input
+        id="address-bar"
+        type="text"
+        placeholder="Search or enter URL"
+        autocomplete="off"
+      />
+      <button id="reload" title="Reload">&#x21bb;</button>
+    </div>
+
+    <div id="tab-contents" class="tab-contents"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
