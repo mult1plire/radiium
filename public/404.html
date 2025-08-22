@@ -2,50 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>404 Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>404 - Page Not Found</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
+    .error-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background-color: #f7f9fc;
-      color: #333;
-      font-family: sans-serif;
+      height: 100vh;
+      text-align: center;
+      background: var(--bg);
+      color: var(--text);
+      animation: fadeInUp 0.6s ease-out;
     }
-    h1 { font-size: 4rem; margin: 0; }
-    p { margin: 0.5rem 0 2rem; font-size: 1.25rem; }
-    .emoji-container { display: flex; gap: 1rem; }
-    .emoji {
-      font-size: 2.5rem;
-      animation: float 3s ease-in-out infinite;
+
+    .error-container h1 {
+      font-size: 72px;
+      margin-bottom: 0;
+      color: var(--accent);
     }
-    .emoji:nth-child(2) { animation-delay: 0.5s; }
-    .emoji:nth-child(3) { animation-delay: 1s; }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-20px); }
+
+    .error-container p {
+      font-size: 18px;
+      margin: 12px 0;
     }
-    a {
-      margin-top: 2rem;
+
+    .error-container a {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
       text-decoration: none;
-      color: #007bff;
+      border-radius: 6px;
       font-weight: bold;
+      transition: background 0.3s;
     }
-    a:hover { text-decoration: underline; }
+
+    .error-container a:hover {
+      background: #3367d6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>404 😢</h1>
-  <p>Oops! We can’t find that page.</p>
-  <div class="emoji-container">
-    <span class="emoji">🤖</span>
-    <span class="emoji">🚀</span>
-    <span class="emoji">🌟</span>
+  <div class="error-container">
+    <h1>404</h1>
+    <p>Oops! This tab wandered off the edge of the internet.</p>
+    <p>Let’s get you back to something useful.</p>
+    <a href="index.html">🔙 Go Home</a>
   </div>
-  <a href="/">← Back to Home</a>
 </body>
 </html>
+
