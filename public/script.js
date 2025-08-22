@@ -2,27 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabsEl = document.getElementById('tabs');
   const addTabBtn = document.getElementById('add-tab');
   const themeToggle = document.getElementById('theme-toggle');
-  const backBtn = document.getElementById('back');
-  const forwardBtn = document.getElementById('forward');
-  const reloadBtn = document.getElementById('reload');
   const addressBar = document.getElementById('address-bar');
+  const searchBtn = document.getElementById('search-btn');
   const tabContents = document.getElementById('tab-contents');
 
   let tabs = {};
   let tabCounter = 0;
   let activeTabId = null;
 
-  // Theme management
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.body.classList.add('dark');
-  }
+  // Theme toggle
   themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('dark');
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
   });
 
-  // Create a new tab
   function addTab(initialQuery = '') {
     const id = `tab-${++tabCounter}`;
     const tabBtn = document.createElement('div');
@@ -42,15 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     tabs[id] = {
       id,
       titleEl: tabBtn,
-      contentEl,
-      history: [],
-      historyIndex: -1
+      contentEl
     };
 
     tabsEl.appendChild(tabBtn);
     tabContents.appendChild(contentEl);
 
-    // Event bindings
     tabBtn.addEventListener('click', () => switchTab(id));
     closeBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -58,40 +47,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     switchTab(id);
-
-    if (initialQuery) navigate(initialQuery);
+    if (initialQuery) searchDuckDuckGo(initialQuery);
   }
 
-  // Switch active tab
   function switchTab(id) {
-    if (!tabs[id]) return;
-
-    // Deactivate all
     Object.values(tabs).forEach(t => {
       t.titleEl.classList.remove('active');
       t.contentEl.classList.remove('active');
     });
 
-    // Activate chosen
     tabs[id].titleEl.classList.add('active');
     tabs[id].contentEl.classList.add('active');
     activeTabId = id;
-
-    // Update toolbar state
-    const { history, historyIndex } = tabs[id];
-    addressBar.value = historyIndex >= 0 ? history[historyIndex] : '';
-    backBtn.disabled = historyIndex <= 0;
-    forwardBtn.disabled = historyIndex >= history.length - 1;
   }
 
-  // Close a tab
   function closeTab(id) {
-    const { titleEl, contentEl } = tabs[id];
-    titleEl.remove();
-    contentEl.remove();
+    tabs[id].titleEl.remove();
+    tabs[id].contentEl.remove();
     delete tabs[id];
 
-    // If closing active, pick another
     if (activeTabId === id) {
       const remaining = Object.keys(tabs);
       if (remaining.length) switchTab(remaining[0]);
@@ -99,76 +73,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Navigate (search) in the active tab
-  async function navigate(query, pushHistory = true) {
+  async function searchDuckDuckGo(query) {
+    if (!query.trim()) return;
     const tab = tabs[activeTabId];
-    if (!tab || !query.trim()) return;
-    query = query.trim();
-
-    // Update history
-    if (pushHistory) {
-      tab.history = tab.history.slice(0, tab.historyIndex + 1);
-      tab.history.push(query);
-      tab.historyIndex++;
-    }
-
-    // Toolbar buttons
-    backBtn.disabled = tab.historyIndex <= 0;
-    forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
-
-    addressBar.value = query;
     tab.titleEl.childNodes[0].nodeValue = query;
+    addressBar.value = query;
 
-    // Fetch results from our proxy
-    const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
-    const { results } = await res.json();
+    const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const res = await fetch(url);
+    const html = await res.text();
 
-    // Render
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const results = doc.querySelectorAll('.result');
+
     tab.contentEl.innerHTML = '';
-    results.forEach((item, i) => {
+    results.forEach((el, i) => {
+      const titleEl = el.querySelector('.result__a');
+      const snippetEl = el.querySelector('.result__snippet');
+      if (!titleEl) return;
+
       const div = document.createElement('div');
       div.className = 'result-item';
       div.style.setProperty('--delay', `${i * 80}ms`);
       div.innerHTML = `
-        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-        <p>${item.snippet}</p>
+        <h3><a href="${titleEl.href}" target="_blank">${titleEl.textContent}</a></h3>
+        <p>${snippetEl?.textContent || ''}</p>
       `;
       tab.contentEl.appendChild(div);
     });
   }
 
-  // Navigation buttons
-  backBtn.addEventListener('click', () => {
-    const tab = tabs[activeTabId];
-    if (tab.historyIndex > 0) {
-      tab.historyIndex--;
-      navigate(tab.history[tab.historyIndex], false);
-    }
+  searchBtn.addEventListener('click', () => {
+    searchDuckDuckGo(addressBar.value);
   });
 
-  forwardBtn.addEventListener('click', () => {
-    const tab = tabs[activeTabId];
-    if (tab.historyIndex < tab.history.length - 1) {
-      tab.historyIndex++;
-      navigate(tab.history[tab.historyIndex], false);
-    }
-  });
-
-  reloadBtn.addEventListener('click', () => {
-    const tab = tabs[activeTabId];
-    if (tab.historyIndex >= 0) {
-      navigate(tab.history[tab.historyIndex], false);
-    }
-  });
-
-  // Press Enter to search
   addressBar.addEventListener('keydown', e => {
-    if (e.key === 'Enter') navigate(addressBar.value);
+    if (e.key === 'Enter') searchDuckDuckGo(addressBar.value);
   });
 
-  // Add new tab
-  addTabBtn.addEventListener('click', () => addTab());
-
-  // Initialize with one tab
   addTab();
 });
