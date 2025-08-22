@@ -2,28 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Radiium Lite Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Radiium Lite</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="browser-window">
     <div class="tab-bar">
       <div id="tabs" class="tabs"></div>
-      <button id="add-tab" title="New Tab">+</button>
-      <button id="theme-toggle" title="Toggle Light/Dark">☾</button>
+      <button id="add-tab">➕</button>
+      <button id="theme-toggle">🌓</button>
     </div>
 
     <div class="toolbar">
-      <button id="back" disabled>&larr;</button>
-      <button id="forward" disabled>&rarr;</button>
-      <input
-        id="address-bar"
-        type="text"
-        placeholder="Search or enter URL"
-        autocomplete="off"
-      />
-      <button id="reload" title="Reload">&#x21bb;</button>
+      <input id="address-bar" type="text" placeholder="Search DuckDuckGo..." />
+      <button id="search-btn">🔍</button>
     </div>
 
     <div id="tab-contents" class="tab-contents"></div>
